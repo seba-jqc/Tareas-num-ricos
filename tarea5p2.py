@@ -27,14 +27,14 @@ def arg_chi_2(params, datos_x, datos_y, func):
 def estimador_amp(x):
     x_min=np.amin(x)
     x_max=np.amax(x)
-    Amp=x_min-x_max
+    Amp=x_max-x_min
     return Amp
 
 def estimador_mu(x):
     mu=np.mean(x)
     return mu
 
-def estimador_sigma(x):
+def estimador_sigma1(x):
     mu=estimador_mu(x)
     n=len(x)
     suma=0
@@ -44,23 +44,44 @@ def estimador_sigma(x):
     suma = suma/(n-1)
     return suma
 
+def estimador_sigma2(x):
+    sigma=np.std(x)
+    return sigma
+
+def estimador_pendiente(x,y):
+    l=len(x)
+    num=y[l-1]-y[0]
+    den=x[l-1]-x[0]
+    return num/den
+
+def estimador_cruce(y):
+    return y[0]
+
 amp=estimador_amp(flujo)
-mu=estimador_mu(long_onda)
-sigma=estimador_sigma(long_onda)
+mu1=estimador_mu(long_onda)
+mu2=long_onda[np.argmin(flujo)]
+sigma1=estimador_sigma1(long_onda)
+sigma2=estimador_sigma2(long_onda)
+a1=estimador_pendiente(long_onda, flujo)
+a2=estimador_cruce(flujo)
 
-print amp, mu, sigma
+p0= amp, mu1, sigma1, a1, a2
+p1= amp, mu2, sigma2, a1, a2
 
-p0= amp, mu, sigma, 0, 0
+resultado_Gauss1=leastsq(arg_chi_2, p0, args=(long_onda, flujo, f_modelo1))
+resultado_Gauss2=leastsq(arg_chi_2, p1, args=(long_onda, flujo, f_modelo1))
+resultado_lorentz1=leastsq(arg_chi_2, p0, args=(long_onda, flujo, f_modelo2))
+resultado_lorentz2=leastsq(arg_chi_2, p1, args=(long_onda, flujo, f_modelo2))
+#print resultado_Gauss[0]
+#print resultado_lorentz[0]
 
-resultado_Gauss=leastsq(arg_chi_2, p0, args=(long_onda, flujo, f_modelo1))
-resultado_lorentz=leastsq(arg_chi_2, p0, args=(long_onda, flujo, f_modelo2))
-print resultado_Gauss[0]
-print resultado_lorentz[0]
-
-plt.plot(long_onda, f_modelo1(resultado_Gauss[0], long_onda), '-r')
+plt.plot(long_onda, f_modelo1(resultado_Gauss1[0], long_onda), '-r')
+plt.plot(long_onda, f_modelo1(resultado_Gauss2[0], long_onda), '-g')
 plt.plot(long_onda, flujo, 'o')
+
 plt.show()
 
-plt.plot(long_onda, f_modelo2(resultado_lorentz[0], long_onda), '-r')
+plt.plot(long_onda, f_modelo2(resultado_lorentz1[0], long_onda), '-r')
+plt.plot(long_onda, f_modelo2(resultado_lorentz2[0], long_onda), '-g')
 plt.plot(long_onda, flujo, 'o')
 plt.show()
