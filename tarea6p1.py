@@ -17,7 +17,7 @@ def rand_points(seed,n):
 El area a utilizar para el metodo de montecarlo corresponde al cilindro centrado
 en x=2, de radio 1 y que va desde y=0 hasta y=4. Con esto se tiene que:
 x: [1,3]
-y: [0,4]
+y: [-4,4]
 z: [-1,1]
 Estos intervalos se utilizaran para hacer de los valores de x, y, z uniformemente
 distribuidos, de la forma x_i -> U(a,b)
@@ -26,7 +26,7 @@ distribuidos, de la forma x_i -> U(a,b)
 def montecarlo(vol,seed,n):
     x, y, z = rand_points(seed,n)
     X=2*x + 1 #distribucion U(1,3)
-    Y=4*y #distribucion U(0,4)
+    Y=8*y - 4#distribucion U(-4,4)
     Z=2*z -1 #distribucion(-1.1)
     sum_x=sum_y=sum_z=sum_m=0
     for i in range(n):
@@ -42,5 +42,15 @@ def montecarlo(vol,seed,n):
     pos_z=vol*sum_z/(n*masa)
     return masa, pos_x, pos_y, pos_z
 
-volumen=np.pi*4
-m,x,y,z=montecarlo(volumen, 24, 1000)
+vec_m=np.array([])
+vec_x=np.array([])
+vec_y=np.array([])
+vec_z=np.array([])
+
+for i in range(100):
+    volumen=np.pi*8
+    m,x,y,z = montecarlo(volumen, i, 10**5)
+    vec_m=np.append(vec_m,m)
+    vec_x=np.append(vec_x,x)
+    vec_y=np.append(vec_y,y)
+    vec_z=np.append(vec_z,z)
